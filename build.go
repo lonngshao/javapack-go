@@ -1,29 +1,19 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"lsn/packjavawithgo/pack"
-	"lsn/packjavawithgo/sourcefile"
 	"os"
 	"time"
+
+	"github.com/javapack-go/pack"
+	"github.com/javapack-go/sourcefile"
 )
 
-func Slicetest() {
-	var a []string = make([]string, 0, 50)
-	var b [][]byte = make([][]byte, 0, 50)
-	b = append(b, []byte("4"))
-	b = append(b, []byte("5"))
-	// a := []string{"1", "2", "3"}
-	a = append(a, "4")
-	fmt.Println(a)
-	fmt.Println(string(bytes.Join(b, []byte(";"))))
-
-}
-
 func main() {
-	// Slicetest()
 	args := os.Args
+	pwd, _ := os.Getwd()
+	//pwdSlice := strings.Split(pwd, ":")
+	//pwdRoot := pwdSlice[0] + ":"
 	vb := &sourcefile.VisitorBuilder{}
 	visitor, _ := vb.Build(args)
 	// ======================================================================
@@ -33,13 +23,17 @@ func main() {
 	after := time.Now().UnixNano()
 	fmt.Println(after - before)
 
+	execCmd := &pack.ExecCmd{CmdProcess: "cmd.exe", CmdOps: "/k", ExecDir: pwd}
+	execCmd.ExecutCmd("")
+
 	c := &pack.Compile{
 		FileMap:        visitor.FileMap,
 		SourceFileStr:  visitor.SourceFileStr,
 		LibSuffix:      visitor.LibSuffix,
 		CompileCmdName: "javac",
 		ProjPrefix:     visitor.ProjPrefix,
-		ExecCmd:        &pack.ExecCmd{CmdName: "cmd.exe", CmdOps: "/c"},
+		//cmd命令 /c为执行完命令后自动关闭窗口，/k不关闭
+		ExecCmd:        execCmd,
 		ClassFileSlice: visitor.ClassFileSlice,
 		ClassFileStr:   visitor.ClassFileStr,
 	}

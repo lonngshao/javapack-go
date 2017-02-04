@@ -118,6 +118,7 @@ func buildSources(out *os.File, path string, err error) error {
 func (c *Compile) Compile(cco CompileCmdOps) error {
 	fMap := c.FileMap
 	sfs := c.SourceFileStr
+	execCmd := c.ExecCmd
 	for k, v := range fMap {
 		if v == cco.Classpath {
 			return nil
@@ -133,22 +134,17 @@ func (c *Compile) Compile(cco CompileCmdOps) error {
 			os.Mkdir(distPath, os.ModeDir)
 		}
 		cco.D = "-d " + v + fileSep + "classes"
-		var pwd string
-		var perr error
-		if pwd, perr = os.Getwd(); perr != nil {
-			return perr
-		}
-		cco.SourceFiles = "@" + pwd + fileSep + BaseSourceDir + fileSep + k + ".txt"
+
+		cco.SourceFiles = "@" + execCmd.ExecDir + fileSep + BaseSourceDir + fileSep + k + ".txt"
 
 		var ccoStr string
 		var err error
 		if ccoStr, err = cco.toString(); err != nil {
 			return errors.New("translate cmd args error")
 		}
-		jc := c.ExecCmd
 		fmt.Println("build exec command str :" + CmdName + " " + ccoStr)
 		fmt.Println("==================================================")
-		jc.executCmd(CmdName + " " + ccoStr)
+		execCmd.ExecutCmd(CmdName + " " + ccoStr)
 	}
 	return nil
 }
